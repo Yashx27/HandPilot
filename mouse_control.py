@@ -57,7 +57,6 @@ def fingersUp(lmList):
     return fingers
 
 prev_time = 0
-prev_scroll_y = None
 
 try:
     while True:
@@ -101,23 +100,24 @@ try:
                 mouse.click(Button.right, 1)
                 time.sleep(0.2)
 
-            # Scroll: Two fingers (index & middle) up
-            if fingers[1] == 1 and fingers[2] == 1 and sum(fingers) == 2:
-                y_avg = (y1 + y2) // 2
-                if prev_scroll_y is None:
-                    prev_scroll_y = y_avg
+            # Scroll using Thumbs Up / Down
+            if fingers == [1, 0, 0, 0, 0]:
+                thumb_tip_y = lmList[4][2]
+                thumb_base_y = lmList[3][2]
 
-                delta_scroll = y_avg - prev_scroll_y
+                # Thumbs Up: tip higher than base
+                if thumb_tip_y < thumb_base_y:
+                    mouse.scroll(0, 2)  # Scroll up
+                    cv2.putText(img, "Scroll Up", (20, 90),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                    time.sleep(0.3)
 
-                if abs(delta_scroll) > 15:
-                    if delta_scroll > 0:
-                        mouse.scroll(0, 2)  # Fingers moved down = scroll up
-                    else:
-                        mouse.scroll(0, -2)  # Fingers moved up = scroll down
-                    prev_scroll_y = y_avg
-                    time.sleep(0.1)
-            else:
-                prev_scroll_y = None
+                # Thumbs Down: tip lower than base
+                elif thumb_tip_y > thumb_base_y:
+                    mouse.scroll(0, -2)  # Scroll down
+                    cv2.putText(img, "Scroll Down", (20, 90),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                    time.sleep(0.3)
 
         # FPS counter
         curr_time = time.time()
